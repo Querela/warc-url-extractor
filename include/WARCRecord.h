@@ -14,12 +14,14 @@ namespace WARC {
         std::string date;
         header_t headers;
         size_t length {0};
+        std::streampos streampos {-1};
         void clear() {
             id.clear();
             type.clear();
             date.clear();
             headers.clear();
             length = 0;
+            streampos = -1;
         }
     };
 

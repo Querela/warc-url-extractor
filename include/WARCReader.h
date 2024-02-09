@@ -14,6 +14,7 @@ namespace WARC {
             template<typename Content>
             bool read(Record<Content>& record) {
                 bool success;
+                std::streampos pos;
                 do {
                     record.clear();
 
@@ -21,9 +22,11 @@ namespace WARC {
                         return false;
                     }
 
+                    pos = input.tellg();
                     checkLine("WARC/1.0");
                     parseHeaders(input, record);
                     success = readContent(input, record);
+                    record.streampos = pos;
                     checkLine("");
                     checkLine("");
                 } while(!success);

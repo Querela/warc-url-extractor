@@ -41,6 +41,21 @@ TEST_CASE("Test ValueParsers", "[warc]") {
         REQUIRE(Value::extractMIME("") == "");
     }
 
+    SECTION("Value::extractWARCType") {
+        REQUIRE(Value::extractWARCType("application/http;msgtype=request") == "request");
+        REQUIRE(Value::extractWARCType("application/http; msgtype=request") == "request");
+        REQUIRE(Value::extractWARCType("application/http ; msgtype=abc") == "abc");
+        REQUIRE(Value::extractWARCType("application/http;msgtype=xyz") == "xyz");
+        REQUIRE(Value::extractWARCType("application/https;msgtype=xyz") == "");
+        REQUIRE(Value::extractWARCType("application/http;othertype=xyz") == "");
+        REQUIRE(Value::extractWARCType("text/html") == "");
+        REQUIRE(Value::extractWARCType("text/http; charset=UTF-8") == "");
+        REQUIRE(Value::extractWARCType("text/html;") == "");
+        REQUIRE(Value::extractWARCType("text/html;;;;;") == "");
+        REQUIRE(Value::extractWARCType(";text/html;;;;;") == "");
+        REQUIRE(Value::extractWARCType("") == "");
+    }
+
     SECTION("Value::extractCharset") {
         REQUIRE(Value::extractCharset("") == "");
         REQUIRE(Value::extractCharset("text/html") == "");

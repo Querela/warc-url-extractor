@@ -2,6 +2,7 @@
 #define _VALUEPARSERS_H_
 
 #include <string>
+#include <algorithm>
 
 namespace Value {
     /**
@@ -24,6 +25,15 @@ namespace Value {
      *     -> uk
      */
     uint8_t extractPathDepth(const std::string& path);
+
+    /**
+     * Parses the MsgType from the "Content-Type" property of the WARC header.
+     * NOTE, this should also be in the "WARC-Type" property...
+     * eg: "text/html; "charset=UTF-8" -> """
+     * eg: "text/html" -> ""
+     * eg: "application/http;msgtype=request" -> "request"
+     */
+    std::string extractWARCType(const std::string& warcType);
 
     /**
      * Parses the MIME type from the "Content-Encoding" property of the HTML header.
@@ -88,6 +98,40 @@ namespace Value {
      * Check if the given strings are equal ignoring case
      */
     bool equalsI(const char* a, const char* b);
+
+    // https://stackoverflow.com/a/217605/9360161
+
+    inline void ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }));
+    }
+
+    inline void rtrim(std::string &s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }).base(), s.end());
+    }
+
+    inline void trim(std::string &s) {
+        rtrim(s);
+        ltrim(s);
+    }
+
+    inline std::string ltrim_copy(std::string s) {
+        ltrim(s);
+        return s;
+    }
+
+    inline std::string rtrim_copy(std::string s) {
+        rtrim(s);
+        return s;
+    }
+
+    inline std::string trim_copy(std::string s) {
+        trim(s);
+        return s;
+    }
 }
 
 #endif

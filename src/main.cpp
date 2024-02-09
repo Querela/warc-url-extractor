@@ -83,7 +83,8 @@ int main(int argc, char** argv) {
 
 void writeCSVHeader(CSV::Writer& csv) {
     csv
-        << "id"                  // string : warc record id
+        << "position in stream"  // int??  : position in file stream
+        << "WARC id"             // string : warc record id
         << "url"                 // string : <full url>
         << "https"               // bool   : http[s]
         << "hostname"            // string : amazon.co.uk
@@ -101,11 +102,15 @@ void processWARC(std::istream& input, CSV::Writer& writer, const PublicSuffix& s
     uint32_t countProcessed {0}, countIgnored {0};
 
     while(reader.read(record)) {
-        if (true) {
+        // std::string contentType  = Value::extractWARCType(record.headers.at("Content-Type"));
+        std::string contentType  = record.headers.at("WARC-Type");
+
+        if ((contentType == "response") || (contentType == "request")) {
             ++countProcessed;
 
             Poco::URI url(record.headers.at("WARC-Target-URI"));
-            writer << record.id
+            writer << std::to_string(record.streampos)
+                   << record.id
                    << record.headers.at("WARC-Target-URI")
                    << std::to_string(url.getScheme() == "https")
                    << url.getHost()
@@ -128,7 +133,7 @@ void processWARC(std::istream& input, CSV::Writer& writer, const PublicSuffix& s
 
     if(verbosity >= lowVerbosity) {
         std::cerr << countProcessed << " records processed, "
-                  << countIgnored << " records ignored because of Content-Type"
+                  << countIgnored << " records ignored because of WARC Content-Type"
                   << std::endl;
     }
 }

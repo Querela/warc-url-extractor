@@ -56,6 +56,28 @@ std::string Value::extractMIME(const std::string& contentType) {
     }
 }
 
+std::string Value::extractWARCType(const std::string& warcType) {
+    size_t semPos = warcType.find(';');
+    if (semPos == std::string::npos) {
+        return "";
+    }
+    std::string mime = warcType.substr(0, semPos);
+    trim(mime);
+    if (mime.compare("application/http") != 0) {
+        return "";
+    }
+    size_t eqPos = warcType.find('=', semPos + 1);
+    if (eqPos == std::string::npos) {
+        return "";
+    }
+    std::string mtype = warcType.substr(semPos + 1, eqPos - semPos - 1);
+    trim(mtype);
+    if (mtype.compare("msgtype") != 0) {
+        return "";
+    }
+    return warcType.substr(eqPos + 1);
+}
+
 std::string Value::extractCharset(const std::string& contentType) {
     size_t charsetBegin = contentType.find("charset=");
     if(charsetBegin != std::string::npos) {
